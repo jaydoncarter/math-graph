@@ -202,23 +202,23 @@ export function Sidebar({
               padding: "10px 20px", cursor: "pointer",
               display: "flex", alignItems: "center", gap: "10px",
               transition: "background 0.15s",
-              background: !isMobile && highlightId === c.id ? "#1a2535" : "transparent",
+              background: highlightId === c.id ? "#1a2535" : "transparent",
             }}
-            onMouseEnter={isMobile ? undefined : (e) => {
+            onMouseEnter={(e) => {
               if (highlightId !== c.id) e.currentTarget.style.background = "#161f2b";
             }}
-            onMouseLeave={isMobile ? undefined : (e) => {
+            onMouseLeave={(e) => {
               if (highlightId !== c.id) e.currentTarget.style.background = "transparent";
             }}
           >
             <div style={{
               width: "8px", height: "8px", borderRadius: "50%", flexShrink: 0,
               background: getTierColor(c.tier),
-              boxShadow: !isMobile && highlightId === c.id ? `0 0 8px ${getTierColor(c.tier)}` : "none",
+              boxShadow: highlightId === c.id ? `0 0 8px ${getTierColor(c.tier)}` : "none",
             }} />
             <span style={{
               fontSize: "13.5px",
-              color: !isMobile && highlightId === c.id ? "#d4c5a9" : "#8a9aaa",
+              color: highlightId === c.id ? "#d4c5a9" : "#8a9aaa",
             }}>
               {c.name}
             </span>
