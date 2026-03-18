@@ -42,34 +42,46 @@ export const conceptData = [
     depends_on: ["law_of_identity", "law_of_noncontradiction", "law_of_excluded_middle"]
   },
   {
-    id: "set_theory", name: "Set Theory",
+    id: "set", name: "Set",
     definition: "Sets are collections of distinct objects, called elements.",
-    latex: "A \\cup B = \\{x \\mid x \\in A \\text{ or } x \\in B\\}",
+    latex: "x \\in A",
     depends_on: ["deduction"]
   },
-      {
+  {
+    id: "union", name: "Set Union",
+    definition: "The union of two sets is the set of all elements that are in either set.",
+    latex: "A \\cup B = \\{x \\mid x \\in A \\text{ or } x \\in B\\}",
+    depends_on: ["set"]
+  },
+  {
+    id: "intersection", name: "Set Intersection",
+    definition: "The intersection of two sets is the set of all elements that are in both sets.",
+    latex: "A \\cap B = \\{x \\mid x \\in A \\land x \\in B\\}",
+    depends_on: ["set"]
+  },
+  {
     id: "whole_numbers", name: "Whole Numbers",
     definition: "Whole numbers are the set of all non-negative integers, starting from 0 and extending to infinity.",
     latex: "\\mathbb{W} = \\{0, 1, 2, 3, \\ldots\\}",
-    depends_on: ["set_theory"]
+    depends_on: ["set"]
   },
     {
     id: "integers", name: "Integers",
     definition: "Integers are the set of all whole numbers, both positive and negative, including zero.",
     latex: "\\mathbb{Z} = \\{\\ldots, -2, -1, 0, 1, 2, \\ldots\\}",
-    depends_on: ["set_theory"]
+    depends_on: ["set"]
   },
   {
     id: "natural_numbers", name: "Natural Numbers",
     definition: "Natural numbers are the set of all positive integers starting from 1 and extending to infinity.",
     latex: "\\mathbb{N} = \\{1, 2, 3, \\ldots\\}",
-    depends_on: ["set_theory"]
+    depends_on: ["set"]
   },
     {
     id: "empty_set", name: "Empty Set",
     definition: "The set that contains no elements.",
     latex: "\\emptyset",
-    depends_on: ["set_theory"]
+    depends_on: ["set"]
   },
   {
     id: "zero", name: "Zero",
@@ -81,7 +93,7 @@ export const conceptData = [
     id: "infinity", name: "Infinity",
     definition: "A quantity that is boundless or endless, exceeding any real number.",
     latex: "\\infty",
-    depends_on: ["set_theory"]
+    depends_on: ["set"]
   },
   {
   id: "absolute_value", name: "Absolute Value",
@@ -316,6 +328,30 @@ export const conceptData = [
   definition: "An expression consisting of variables and coefficients combined using addition, subtraction, and non-negative integer exponents.",
   latex: "P(x) = a_n x^n + a_{n-1}x^{n-1} + \\cdots + a_1 x + a_0",
   depends_on: ["variable", "exponentiation", "addition", "multiplication"]
+},
+{
+  id: "monomial", name: "Monomials",
+  definition: "A polynomial with only one term.",
+  latex: "ax^n",
+  depends_on: ["polynomial"]
+},
+{
+  id: "binomial", name: "Binomials",
+  definition: "A polynomial with two terms.",
+  latex: "(ax + b)",
+  depends_on: ["polynomial"]
+},
+{
+  id: "trinomial", name: "Trinomials",
+  definition: "A polynomial with three terms.",
+  latex: "ax^2 + bx + c",
+  depends_on: ["polynomial"]
+},
+{
+  id: "conjugate", name: "Conjugates",
+  definition: "A pair of binomials with the same terms but opposite signs between them.",
+  latex: "(a + b)(a - b)",
+  depends_on: ["binomial"]
 },
 {
   id: "linear_equation", name: "Linear Equation",
@@ -573,13 +609,13 @@ export const conceptData = [
   },
   {
     id: "ftc1", name: "Fundamental Theorem of Calculus Part I",
-    definition: "Differentiation and integration are inverse operations",
-    latex: "\\frac{d}{dx} \\int_{a}^{x} f(t) \\, dt = f(x)",
+    definition: "Differentiation and integration are inverse operations. The derivative of the integral of a function is the original function.",
+    latex: "\\frac{d}{dx} \\left( \\int_{a}^{x} f(t) \\, dt \\right) = f(x)",
     depends_on: ["derivative", "integral"]
   },
   {
     id: "ftc2", name: "Fundamental Theorem of Calculus Part II",
-    definition: "Integrals of functions can be evaluated using antiderivatives.",
+    definition: "Integrals of functions can be evaluated using antiderivatives. The integral of a function over an interval can be computed using any one of its infinitely many antiderivatives.",
     latex: "\\int_a^b f(x)\\, dx = F(b) - F(a)",
     depends_on: ["ftc1"]
   },
