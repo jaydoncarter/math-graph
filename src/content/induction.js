@@ -1,0 +1,65 @@
+/**
+ * content/induction.js
+ *
+ * Rich content for the Mathematical Induction node.
+ * A simpler example — definition, two LaTeX blocks, a note, and a list.
+ * Shows that content files don't have to be large.
+ */
+
+export const blocks = [
+
+  {
+    type: "definition",
+    content:
+      "Mathematical induction is a proof technique for establishing that a "
+      + "statement P(n) holds for every natural number n. It consists of two "
+      + "steps: a base case and an inductive step.",
+  },
+
+  { type: "section", title: "Formal Statement" },
+  {
+    type: "latex",
+    content:
+      "\\bigl[P(1) \\land \\forall n\\,(P(n) \\Rightarrow P(n+1))\\bigr] "
+      + "\\implies \\forall n \\in \\mathbb{N},\\; P(n)",
+  },
+
+  { type: "section", title: "The Two Steps" },
+  {
+    type: "list",
+    ordered: true,
+    items: [
+      "Base case: verify that P(1) (or P(0)) is true directly.",
+      "Inductive step: assume P(n) holds for an arbitrary n (the inductive hypothesis), then prove P(n+1) follows.",
+    ],
+  },
+
+  { type: "section", title: "Classic Example" },
+  {
+    type: "text",
+    content: "Sum of the first n natural numbers:",
+  },
+  {
+    type: "latex",
+    content: "\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}",
+  },
+  {
+    type: "note",
+    noteType: "proof",
+    content:
+      "Base case n = 1: 1 = 1·2/2 ✓. "
+      + "Inductive step: assuming the formula for n, "
+      + "add (n+1) to both sides: n(n+1)/2 + (n+1) = (n+1)(n+2)/2, "
+      + "which is the formula with n replaced by n+1. ∎",
+  },
+
+  {
+    type: "note",
+    noteType: "info",
+    content:
+      "Strong induction assumes P(1), P(2), …, P(n) all hold (not just P(n)) "
+      + "to prove P(n+1). It is logically equivalent to ordinary induction but "
+      + "often more convenient for divisibility, recurrences, and graph theory.",
+  },
+
+];

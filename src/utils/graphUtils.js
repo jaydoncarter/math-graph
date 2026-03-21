@@ -1,5 +1,13 @@
 import { conceptData } from "../conceptData";
 
+/**
+ * utils/graphUtils.js
+ *
+ * Defines computational functions for creating the graph:
+ *  assertAcyclic
+ *  computeTiers
+ */
+
 // ─── Graph algorithms ────────────────────────────────────────────────────────
 
 /**

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { conceptData } from "../conceptData";
 
 /**
+ * components/Sidebar.jsx
+ * 
  * The left-side panel containing:
  *   - App header ("Mathematical Concepts")
  *   - Concept search box with live dropdown results

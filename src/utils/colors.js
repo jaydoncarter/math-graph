@@ -1,6 +1,12 @@
 import { maxTier } from "./graphUtils";
 
 /**
+ * utils/colors.js
+ *
+ * Defines the tier colors and exports them as needed.
+ */
+
+/**
  * Gold-to-amber palette — one entry per visual "stop".
  * getTierColor interpolates across this array so it works for any number
  * of tiers without needing to be updated when the data changes.

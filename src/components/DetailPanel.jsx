@@ -1,12 +1,67 @@
-import { conceptData } from "../conceptData";
-import { KatexBlock } from "../utils/katex";
+import { useState, useEffect } from "react";
 
-// ─── Inner content (shared between mobile and desktop layouts) ───────────────
+import { conceptData }      from "../conceptData";
+import { KatexBlock }       from "../utils/katex";
+import { ContentRenderer }  from "./ContentRenderer";
 
-function ConceptContent({ selected, katexReady, deps, dependents, selectNode, getTierColor }) {
+/**
+ * components/DetailPanel.jsx
+ *
+ * The description sidebar for a selected node. Displayed on the right side of 
+ * the screen on desktop, and on the bottom on mobile.
+ */
+
+// ─── Inner content ────────────────────────────────────────────────────────────
+//
+// Owns the dynamic import of per-node content modules.
+// The panel shell (tier badge, title, deps/unlocks, close button) is always
+// rendered by the parent layouts below — this component only controls the body.
+
+function ConceptContent({
+  selected, katexReady, deps, dependents, selectNode, getTierColor,
+}) {
+  // "idle" → "loading" → "ready" | "fallback"
+  const [loadState,  setLoadState]  = useState("idle");
+  const [richBlocks, setRichBlocks] = useState(null);
+
+  // ── Dynamic import ─────────────────────────────────────────────────────
+  // Fires whenever the selected node changes.
+  // If the node has hasRichContent: true we try to import its module.
+  // Any failure (file not found, parse error) silently falls back to the
+  // default simple layout so a missing file never breaks the panel.
+  useEffect(() => {
+    if (!selected) return;
+
+    if (!selected.hasRichContent) {
+      setRichBlocks(null);
+      setLoadState("fallback");
+      return;
+    }
+
+    setLoadState("loading");
+    setRichBlocks(null);
+
+    import(`../content/${selected.id}.js`)
+      .then((mod) => {
+        if (Array.isArray(mod.blocks) && mod.blocks.length > 0) {
+          setRichBlocks(mod.blocks);
+          setLoadState("ready");
+        } else {
+          // Module exists but exported nothing usable
+          setLoadState("fallback");
+        }
+      })
+      .catch(() => {
+        // File doesn't exist yet — degrade gracefully
+        setLoadState("fallback");
+      });
+  }, [selected?.id, selected?.hasRichContent]);
+
+  if (!selected) return null;
+
   return (
     <>
-      {/* Tier badge */}
+      {/* ── Tier badge ──────────────────────────────────────────────── */}
       <div style={{
         display: "inline-flex", alignItems: "center", gap: "6px",
         padding: "3px 10px", borderRadius: "20px", marginBottom: "16px",
@@ -25,33 +80,55 @@ function ConceptContent({ selected, katexReady, deps, dependents, selectNode, ge
         </span>
       </div>
 
-      {/* Name */}
+      {/* ── Name ────────────────────────────────────────────────────── */}
       <h2 style={{
-        fontSize: "22px", fontWeight: 600, color: "#d4c5a9", margin: "0 0 12px",
+        fontSize: "22px", fontWeight: 600, color: "#d4c5a9", margin: "0 0 20px",
         fontFamily: "'IM Fell English', Georgia, serif", lineHeight: 1.3,
       }}>
         {selected.name}
       </h2>
 
-      {/* Definition */}
-      <p style={{ fontSize: "15px", lineHeight: 1.7, color: "#8a9aaa", margin: "0 0 24px" }}>
-        {selected.definition}
-      </p>
+      {/* ── Body: three possible states ─────────────────────────────── */}
 
-      {/* LaTeX block */}
-      <div style={{
-        background: "#0d1117", borderRadius: "8px", padding: "20px",
-        border: "1px solid #1e2d3d", marginBottom: "24px", overflowX: "auto",
-      }}>
-        {katexReady
-          ? <KatexBlock key={selected.id} latex={selected.latex} />
-          : <code style={{ color: "#e2b96f", fontSize: "13px" }}>{selected.latex}</code>
-        }
-      </div>
+      {/* 1. Loading spinner / placeholder */}
+      {loadState === "loading" && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: "8px",
+          padding: "16px 0", color: "#3a4a5a", fontSize: "13px",
+        }}>
+          <LoadingDots />
+          Loading content…
+        </div>
+      )}
 
-      {/* Dependencies — concepts this one requires */}
+      {/* 2. Rich content from the per-node module */}
+      {loadState === "ready" && richBlocks && (
+        <ContentRenderer blocks={richBlocks} katexReady={katexReady} />
+      )}
+
+      {/* 3. Simple fallback (default layout, same as original DetailPanel) */}
+      {(loadState === "fallback" || loadState === "idle") && (
+        <>
+          <p style={{
+            fontSize: "15px", lineHeight: 1.7, color: "#8a9aaa", margin: "0 0 24px",
+          }}>
+            {selected.definition}
+          </p>
+          <div style={{
+            background: "#0d1117", borderRadius: "8px", padding: "20px",
+            border: "1px solid #1e2d3d", marginBottom: "24px", overflowX: "auto",
+          }}>
+            {katexReady
+              ? <KatexBlock key={selected.id} latex={selected.latex} />
+              : <code style={{ color: "#e2b96f", fontSize: "13px" }}>{selected.latex}</code>
+            }
+          </div>
+        </>
+      )}
+
+      {/* ── Requires ────────────────────────────────────────────────── */}
       {deps.length > 0 && (
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginTop: "28px", marginBottom: "20px" }}>
           <div style={{
             fontSize: "10px", letterSpacing: "2px", color: "#3a4a5a",
             textTransform: "uppercase", marginBottom: "10px",
@@ -66,9 +143,9 @@ function ConceptContent({ selected, katexReady, deps, dependents, selectNode, ge
         </div>
       )}
 
-      {/* Dependents — concepts this one unlocks */}
+      {/* ── Unlocks ─────────────────────────────────────────────────── */}
       {dependents.length > 0 && (
-        <div>
+        <div style={{ marginTop: deps.length > 0 ? 0 : "28px" }}>
           <div style={{
             fontSize: "10px", letterSpacing: "2px", color: "#3a4a5a",
             textTransform: "uppercase", marginBottom: "10px",
@@ -86,7 +163,8 @@ function ConceptContent({ selected, katexReady, deps, dependents, selectNode, ge
   );
 }
 
-// Small clickable concept row used in both "Requires" and "Unlocks" lists
+// ─── Concept link row ─────────────────────────────────────────────────────────
+
 function ConceptLink({ concept, selectNode, getTierColor }) {
   return (
     <div
@@ -98,11 +176,11 @@ function ConceptLink({ concept, selectNode, getTierColor }) {
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = getTierColor(concept.tier) + "66";
-        e.currentTarget.style.background = "#161f2b";
+        e.currentTarget.style.background  = "#161f2b";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "#1e2d3d";
-        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.background  = "transparent";
       }}
     >
       <div style={{
@@ -114,12 +192,41 @@ function ConceptLink({ concept, selectNode, getTierColor }) {
   );
 }
 
-// ─── Exported panel ──────────────────────────────────────────────────────────
+// ─── Loading indicator ────────────────────────────────────────────────────────
+
+function LoadingDots() {
+  return (
+    <span style={{ display: "inline-flex", gap: "3px", alignItems: "center" }}>
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: "4px", height: "4px", borderRadius: "50%",
+            background: "#3a4a5a", display: "inline-block",
+            animation: "detailPanelPulse 1.2s ease-in-out infinite",
+            animationDelay: `${i * 0.2}s`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes detailPanelPulse {
+          0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+          40%            { opacity: 1;   transform: scale(1);   }
+        }
+      `}</style>
+    </span>
+  );
+}
+
+// ─── Exported panel ───────────────────────────────────────────────────────────
 
 /**
  * Renders the concept detail panel.
  * - On desktop: a side drawer that slides in from the right.
  * - On mobile:  a bottom sheet that slides up from the bottom.
+ *
+ * Unchanged from the original except that ConceptContent now dynamically
+ * imports per-node content modules when selected.hasRichContent is true.
  *
  * @param {object}   props
  * @param {object}   props.selected        – selected concept object (or null)
@@ -156,7 +263,7 @@ export function DetailPanel({
     selected, katexReady, deps, dependents, selectNode, getTierColor,
   };
 
-  // ── Mobile: bottom sheet ─────────────────────────────────────────────
+  // ── Mobile: bottom sheet ───────────────────────────────────────────────
   if (isMobile) {
     return (
       <div style={{
@@ -192,7 +299,7 @@ export function DetailPanel({
     );
   }
 
-  // ── Desktop: side drawer ─────────────────────────────────────────────
+  // ── Desktop: side drawer ───────────────────────────────────────────────
   return (
     <div style={{
       position: "absolute", right: 0, top: 0, bottom: 0,

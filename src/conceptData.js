@@ -1,3 +1,46 @@
+/**
+ * conceptData.js
+ * 
+ * To add a node to the tree, create a new item in this list. First, ensure all the item attributes are
+ * correctly implemented according to their contracts; then if rich text is necessary, set the optional
+ * hasRichContent attribute to true. Create a rich text file according to the contract defined in _TEMPLATE.js.
+ * 
+ * Please note, the graph will not render if it is not acyclic; thus, please insure new nodes do not create
+ * loops. If the graph is not rendering, that is likely the issue.
+ *
+ * ─── conceptData Item Contract ────────────────────────────────────────────────────
+ *
+ *  id           A unique snake_case idenitifer that is used as the reference for the 
+ *               node when building the graph and in other nodes' depends_on lists. If
+ *               there are duplicate ids, the graph will not render properly.
+ * 
+ *  name         Similar to the ID, a consice and accurate name for the concept. This will
+ *               appear at the top of the node description. Aim to keep the id and name as 
+ *               similar as possible.
+ *
+ *  definition   A consice, fundamental description of the concept. No more that three 
+ *               sentences. If more information is required to define a concept, use a 
+ *               rich node. 
+ *
+ *  latex        A short LaTeX mathematical representation that is rendered by KaTeX. 
+ *               If the LaTeX is long enough that it causes the scroll bar to appear at 
+ *               the bottom of the display window, either use a carriage return to 
+ *               seperate parts of the LaTeX, or use a rich node.
+ *
+ *  depends_on    The dependency agency list for this node. The ids in this list cannot 
+ *                belong to nodes that this node unlocks or leads to, directly or 
+ *                indirectly. Each id should be a concept that this node directly depends 
+ *                on, derives from, or is influenced by. There must be at least id, but no 
+ *                more than is necessary.
+ *
+ *  hasRichContent  An optional boolean flag that indicates to the graph renderer whether
+ *                  to override the basic content with a rich content file, as defined by 
+ *                  _TEMPLATE.js. Even if this is set to true, if the corresponding js file
+ *                  in content with the same name as this node's id does not exist or is 
+ *                  invalid, the graph will default to rendering the basic content. See 
+ *                   _TEMPLATE.js for the contract for creating a rich node.
+ */
+
 export const conceptData = [
     {
     id: "law_of_identity", name: "Law of Identity",
@@ -71,7 +114,7 @@ export const conceptData = [
     latex: "\\mathbb{W} = \\{0, 1, 2, 3, \\ldots\\}",
     depends_on: ["set"]
   },
-    {
+  {
     id: "integers", name: "Integers",
     definition: "Integers are the set of all whole numbers, both positive and negative, including zero.",
     latex: "\\mathbb{Z} = \\{\\ldots, -2, -1, 0, 1, 2, \\ldots\\}",
@@ -100,6 +143,12 @@ export const conceptData = [
     definition: "A quantity that is boundless or endless, exceeding any real number.",
     latex: "\\infty",
     depends_on: ["set"]
+  },
+  {
+    id: "even_odd", name: "Even and Odd Numbers",
+    definition: "Even numbers are integers divisible by 2, while odd numbers are integers that are not divisible by 2.",
+    latex: "\\text{Even: } 2k, \\quad \\text{Odd: } 2k + 1, \\\\ k \\in \\mathbb{Z}",
+    depends_on: ["integers", "divisibility"]
   },
   {
     id: "infintesimal", name: "Infinitesimal",
@@ -203,18 +252,98 @@ export const conceptData = [
     latex: "a \\times \\frac{1}{a} = 1",
     depends_on: ["multiplication"]
   },
-      {
+  {
+    id: "factorial", name: "Factorial",
+    definition: "The product of all positive integers less than or equal to a given number.",
+    latex: "n! = n \\times (n-1) \\times (n-2) \\times \\ldots \\times 1",
+    depends_on: ["multiplication"]
+  },
+  {
     id: "exponentiation", name: "Exponentiation",
     definition: "The operation of multiplying a number a by itself n times to produce a power.",
     latex: "a^n = \\underbrace{a \\times a \\times \\ldots \\times a}_{n \\text{ times}}",
     depends_on: ["multiplication"]
   },
   {
+    id: "product_of_powers", name: "Product of Powers",
+    definition: "When multiplying powers with the same base, add the exponents.",
+    latex: "a^m \\times a^n = a^{m+n}",
+    depends_on: ["exponentiation"]
+  },
+  {
+    id: "quotient_of_powers", name: "Quotient of Powers",
+    definition: "When dividing powers with the same base, subtract the exponents.",
+    latex: "\\frac{a^m}{a^n} = a^{m-n}",
+    depends_on: ["exponentiation"]
+  },
+  {
+    id: "power_of_powers", name: "Power of Powers",
+    definition: "When raising a power to another power, multiply the exponents.",
+    latex: "(a^m)^n = a^{mn}",
+    depends_on: ["exponentiation"]
+  },
+   {
+    id: "power_of_product", name: "Power of Product",
+    definition: "When raising a product to a power, raise each factor to that power.",
+    latex: "(ab)^n = a^n b^n",
+    depends_on: ["exponentiation"]
+  },
+  {
+    id: "one_exponent", name: "One Exponent",
+    definition: "Any number raised to the power of one is the number itself.",
+    latex: "a^1 = a",
+    depends_on: ["exponentiation"]
+  },
+  {
+    id: "zero_exponent", name: "Zero Exponent",
+    definition: "Any non-zero number raised to the power of zero is one.",
+    latex: "a^0 = 1, \\quad a \\neq 0",
+    depends_on: ["exponentiation"]
+  },
+  {
+    id: "power_of_quotient", name: "Power of Quotient",
+    definition: "When raising a quotient to a power, raise both the numerator and denominator to that power.",
+    latex: "\\left(\\frac{a}{b}\\right)^n = \\frac{a^n}{b^n}",
+    depends_on: ["exponentiation"]
+  },
+  {
   id: "exponential_function", name: "Exponential Function",
   definition: "A function where a constant base is raised to a variable exponent.",
   latex: "f(x) = b^x,\\quad b > 0,\\, b \\neq 1",
-  depends_on: ["functions", "exponentiation"]
+  depends_on: ["functions", "exponentiation"],
+  hasRichContent: true
 },
+{
+  id: "exponential_power", name: "Exponential Power Function",
+  definition: "A function where a variable base is raised to a variable exponent.",
+  latex: "f(x) = x^x,\\quad x > 0",
+  depends_on: ["functions", "exponentiation"],
+  hasRichContent: true
+},
+{
+    id: "scientific_notation", name: "Scientific Notation",
+    definition: "A way of writing very large or very small numbers by multiplying a number between 1 and 10 by a power of ten.",
+    latex: "a \\times 10^n, \\quad 1 \\leq |a| < 10, \\\\ n \\in \\mathbb{Z}",
+    depends_on: ["exponentiation", "multiplication"]
+  },
+  {
+    id: "e_notation", name: "Scientific E Notation",
+    definition: "A shorthand for scientific notation commonly used in programming and engineering, where 'e' stands for 'exponent' and represents the power of ten.",
+    latex: "a \\text{E} \\pm b = a \\times 10^{\\pm b}",
+    depends_on: ["scientific_notation"]
+  },
+{
+    id: "binomial_coefficient", name: "Binomial Coefficient",
+    definition: "The number of ways to choose a subset of k items from a set of n distinct items. Known as 'n choose k'.",
+    latex: "\\binom{n}{k} = \\frac{n!}{k!(n-k)!}",
+    depends_on: ["subset", "factorial"]
+  },
+{
+    id: "binomial_theorem", name: "Binomial Theorem",
+    definition: "A formula for expanding powers of a binomial expression.",
+    latex: "(a + b)^n = \\sum_{k=0}^{n} \\binom{n}{k} a^{n-k} b^k",
+    depends_on: ["exponentiation", "binomial_coefficient", "power_of_product"]
+  },
 {
   id: "eulers_number", name: "Euler's Number",
   definition: "The unique positive real number e such that the derivative of e^x is itself. It is the base of the natural logarithm.",
@@ -262,6 +391,12 @@ export const conceptData = [
     definition: "The amount left over after dividing one number by another when the division is not exact.",
     latex: "a \\div b = q + r, \\quad 0 \\leq r < b",
     depends_on: ["division"]
+  },
+  {
+    id: "long_division", name: "Long Division",
+    definition: "A method for performing division of two numbers, especially when the divisor is larger than the dividend or when the division is not exact.",
+    latex: "a \\div b = q + \\frac{r}{b}",
+    depends_on: ["division", "remainder"]
   },
   {
   id: "divisibility", name: "Divisibility",
@@ -370,6 +505,18 @@ export const conceptData = [
     definition: "A relation that uniquely maps each element of a domain to exactly one element of a codomain.",
     latex: "f: A \\to B,\\quad f(x) = y",
     depends_on: ["algebra", "variable"]
+  },
+  {
+    id: "even_odd_functions", name: "Even and Odd Functions",
+    definition: "Even functions are symmetric with respect to the y-axis, while odd functions are symmetric with respect to the origin.",
+    latex: "\\text{Even: } f(-x) = f(x), \\\\ \\text{Odd: } f(-x) = -f(x)",
+    depends_on: ["functions", "cartesian_plane"]
+  },
+  {
+    id: "implicit_functions", name: "Implicit Functions",
+    definition: "A function defined by an equation that does not explicitly solve for one variable in terms of the other.",
+    latex: "F(x, y) = 0",
+    depends_on: ["functions"]
   },
   {
     id: "real_solutions", name: "Real Solutions",
@@ -540,6 +687,12 @@ export const conceptData = [
     depends_on: ["cartesian_plane", "point"]
   },
   {
+    id: "tangent_line", name: "Tangent Line",
+    definition: "A line that touches a curve at a single point and has the same slope as the curve at that point.",
+    latex: " y - f(a) = f'(a)(x - a)",
+    depends_on: ["line", "curve", "derivative"]
+  },
+  {
     id: "shape", name: "Shape",
     definition: "A geometric figure defined by its boundaries of connected lines, curves, or points.",
     latex: "\\text{Shape}",
@@ -586,7 +739,8 @@ export const conceptData = [
     id: "triangle", name: "Triangle",
     definition: "A polygon with three edges and three vertices.",
     latex: "\\triangle",
-    depends_on: ["polygon"]
+    depends_on: ["polygon"],
+    hasRichContent: true
   },
   {
     id: "right_triangle", name: "Right Triangle",
@@ -760,7 +914,7 @@ export const conceptData = [
   id: "hyperbolic-cosine", name: "Hyperbolic Cosine",
   definition: "A function defined based on the hyperbola rather than the unit circle. It can be expressed in terms of the exponential function.",
   latex: "\\cosh(x) = \\frac{e^x + e^{-x}}{2}",
-  depends_on: ["exponential_function", "eulers_number", "cosine", "hyperbola"]
+  depends_on: ["exponential_function", "eulers_number", "cosine", "hyperbola"],
 },
 {
   id: "hyperbolic-tangent", name: "Hyperbolic Tangent",
@@ -825,8 +979,92 @@ export const conceptData = [
 {
   id: "pythagorean_identity", name: "Pythagorean Identity",
   definition: "A fundamental trigonometric identity that relates the squares of sine and cosine of an angle to 1.",
-  latex: "\\sin^2\\theta + \\cos^2\\theta = 1",
-  depends_on: ["sine", "cosine", "pythagorean_theorem", "unit_circle"]
+  latex: "\\sin^2\\theta + \\cos^2\\theta = 1 \\\\ \\implies \\tan^2\\theta + 1 = \\sec^2\\theta \\\\ \\implies 1 + \\cot^2\\theta = \\csc^2\\theta",
+  depends_on: ["sine", "cosine", "tangent", "secant", "cotangent", "cosecant", "pythagorean_theorem", "unit_circle"]
+},
+{
+  id: "angle_sum_sine", name: "Angle Sum Identity for Sine",
+  definition: "A trigonometric identity that expresses the sine of the sum of two angles in terms of the sines and cosines of the individual angles.",
+  latex: "\\sin(\\alpha \\pm \\beta) = \\\\ \\sin\\alpha \\cos\\beta \\pm \\cos\\alpha \\sin\\beta",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "angle_sum_cosine", name: "Angle Sum Identity for Cosine",
+  definition: "A trigonometric identity that expresses the cosine of the sum of two angles in terms of the sines and cosines of the individual angles.",
+  latex: "\\cos(\\alpha \\pm \\beta) = \\\\ \\cos\\alpha \\cos\\beta \\mp \\sin\\alpha \\sin\\beta",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "angle_sum_tangent", name: "Angle Sum Identity for Tangent",
+  definition: "A trigonometric identity that expresses the tangent of the sum of two angles in terms of the tangents of the individual angles.",
+  latex: "\\tan(\\alpha \\pm \\beta) = \\frac{\\tan\\alpha \\pm \\tan\\beta}{1 \\mp \\tan\\alpha \\tan\\beta}",
+  depends_on: ["tangent"]
+},
+{
+  id: "double_angle_sine", name: "Double Angle Identity for Sine",
+  definition: "A trigonometric identity that expresses the sine of twice an angle in terms of the sine and cosine of the angle.",
+  latex: "\\sin(2\\theta) = 2\\sin\\theta \\cos\\theta",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "double_angle_cosine", name: "Double Angle Identity for Cosine",
+  definition: "A trigonometric identity that expresses the cosine of twice an angle in terms of the sine and cosine of the angle.",
+  latex: "\\cos(2\\theta) = \\cos^2\\theta - \\sin^2\\theta \\\\ = 2\\cos^2\\theta - 1 \\\\ = 1 - 2\\sin^2\\theta ",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "half_angle_sine", name: "Half Angle Identity for Sine",
+  definition: "A trigonometric identity that expresses the sine of half an angle in terms of the cosine of the angle.",
+  latex: "\\sin\\left(\\frac{\\theta}{2}\\right) = \\pm \\sqrt{\\frac{1 - \\cos\\theta}{2}}",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "half_angle_cosine", name: "Half Angle Identity for Cosine",
+  definition: "A trigonometric identity that expresses the cosine of half an angle in terms of the cosine of the angle.",
+  latex: "\\cos\\left(\\frac{\\theta}{2}\\right) = \\pm \\sqrt{\\frac{1 + \\cos\\theta}{2}}",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "product_sine", name: "Product-to-Sum Identity for Sine",
+  definition: "A trigonometric identity that expresses the product of two sine functions as a sum of cosine functions.",
+  latex: "\\sin\\alpha \\sin\\beta = \\\\ \\frac{1}{2}[\\cos(\\alpha - \\beta) - \\cos(\\alpha + \\beta)]",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "product_cosine", name: "Product-to-Sum Identity for Cosine",
+  definition: "A trigonometric identity that expresses the product of two cosine functions as a sum of cosine functions.",
+  latex: "\\cos\\alpha \\cos\\beta = \\\\ \\frac{1}{2}[\\cos(\\alpha - \\beta) + \\cos(\\alpha + \\beta)]",
+  depends_on: ["cosine"]
+},
+{
+  id: "even_odd_sine", name: "Even and Odd Identity for Sine",
+  definition: "A trigonometric identity that expresses the sine of an even function as zero and the sine of an odd function as itself.",
+  latex: "\\sin(-\\theta) = -\\sin(\\theta)",
+  depends_on: ["sine"]
+},
+{
+  id: "even_odd_cosine", name: "Even and Odd Identity for Cosine",
+  definition: "A trigonometric identity that expresses the cosine of an even function as itself and the cosine of an odd function as zero.",
+  latex: "\\cos(-\\theta) = \\cos(\\theta)",
+  depends_on: ["cosine"]
+},
+{
+  id: "even_odd_tangent", name: "Even and Odd Identity for Tangent",
+  definition: "A trigonometric identity that expresses the tangent of an even function as zero and the tangent of an odd function as itself.",
+  latex: "\\tan(-\\theta) = -\\tan(\\theta)",
+  depends_on: ["tangent"]
+},
+{
+  id: "cofunction_sine", name: " Cofunction Identity for Sine",
+  definition: "A trigonometric identity that expresses the sine of an angle as the cosine of its complement.",
+  latex: "\\sin(\\theta) = \\cos\\left(\\frac{\\pi}{2} - \\theta\\right)",
+  depends_on: ["sine", "cosine"]
+},
+{
+  id: "cofunction_tangent", name: " Cofunction Identity for Tangent",
+  definition: "A trigonometric identity that expresses the tangent of an angle as the cotangent of its complement.",
+  latex: "\\tan(\\theta) = \\cot\\left(\\frac{\\pi}{2} - \\theta\\right)",
+  depends_on: ["tangent", "cotangent"]
 },
 {
   id: "law_of_sines", name: "Law of Sines",
@@ -864,17 +1102,66 @@ export const conceptData = [
     latex: "f(n) = a_1, a_2, \\ldots, a_{n-1}, a_n",
     depends_on: ["functions", ]
   },
+    {
+    id: "arithmetic_sequence", name: "Arithmetic Sequence",
+    definition: "A sequence in which each term differs from the previous term by a constant.",
+    latex: "a_n = a_1 + (n-1)d",
+    depends_on: ["sequences"]
+  },
+  {
+    id: "geometric_sequence", name: "Geometric Sequence",
+    definition: "A sequence in which each term is obtained by multiplying the previous term by a constant.",
+    latex: "a_n = a_1 \\cdot r^{n-1}",
+    depends_on: ["sequences"]
+  },
+
+  {
+    id: "growth_rate_sequences", name: "Growth Rate of Sequences Theorem",
+    definition: "Orders functions by how quickly they approach infinity as n approaches infinity.",
+    latex: "\\ln \\ll n^{p} \\ll b^{n} \\ll n! \\ll n^{n}",
+    depends_on: ["sequences", "limits", "convergence", "divergence"]
+  },
   {
     id: "series", name: "Series",
     definition: "The sum of a sequence's terms, converging when the partial sums approach a finite limit.",
-    latex: "S = \\sum_{n=1}^{\\infty} a_n",
+    latex: "S = \\sum_{k=1}^{N} a_k",
     depends_on: ["sequences"]
+  },
+  {
+    id: "geometric_series", name: "Geometric Series",
+    definition: "The sum of the terms of a geometric sequence.",
+    latex: "S = \\sum_{k=1}^{N} a_1 r^{k-1}",
+    depends_on: ["geometric_sequence", "series"]
+  },
+  {
+    id: "geometric_series_sum", name: "Geometric Series Sum",
+    definition: "Provides a formula for the sum of the first N terms of a geometric series, valid for any common ratio r except 1.",
+    latex: "S = \\sum_{k=1}^{N} a_1 r^{k-1} = a_1 \\frac{1 - r^N}{1 - r} \\\\ \\forall r \\neq 1",
+    depends_on: ["geometric_series"]
+  },
+  {
+    id: "geometric_series_infinite", name: "Infinite Geometric Series",
+    definition: "The sum of the terms of a geometric sequence, converging when the common ratio is between -1 and 1.",
+    latex: "S = \\sum_{k=1}^{\\infty} a_1 r^{k-1} = \\frac{a_1}{1 - r} \\\\ \\forall |r| < 1",
+    depends_on: ["geometric_series", "convergence", "infinity"]
+  },
+  {
+    id: "harmonic_series", name: "Harmonic Series",
+    definition: "The sum of the reciprocals of the positive integers.",
+    latex: "S = \\sum_{n=1}^{\\infty} \\frac{1}{n}",
+    depends_on: ["series"]
+  },
+  {
+    id: "divergence_test", name: "Divergence Test",
+    definition: "A test for the divergence of a series.",
+    latex: "\\lim_{n \\to \\infty} a_n \\neq 0 \\implies \\\\ \\sum_{n=1}^{\\infty} a_n \\text{ diverges}",
+    depends_on: ["series", "divergence"]
   },
   {
     id: "partial_sums", name: "Partial Sums",
     definition: "The sum of the first n terms of a sequence.",
     latex: "S_n = \\sum_{i=1}^n a_i",
-    depends_on: ["sequences"]
+    depends_on: ["sequences", "pfd"]
   },
   {
     id: "continuity", name: "Continuity",
@@ -895,6 +1182,18 @@ export const conceptData = [
     depends_on: ["convergence"]
   },
   {
+    id: "monotone_convergence", name: "Monotone Convergence",
+    definition: "A bounded monotone sequence converges to a limit. Specifically, if a sequence is increasing and bounded above, it converges to its supremum; if it is decreasing and bounded below, it converges to its infimum.",
+    latex: "\\lim_{n \\to \\infty} a_n = \\sup\\{a_n : n \\in \\mathbb{N}\\}",
+    depends_on: ["convergence"]
+  },
+  {
+    id: "oscillatory_convergence", name: "Oscillatory Convergence",
+    definition: "A bounded sequence that oscillates but converges to a limit.",
+    latex: "\\sum_{n=1}^\\infty \\frac{(-1)^n}{n} \\to 0",
+    depends_on: ["convergence"]
+  },
+  {
     id: "riemann_sum", name: "Riemann Sum",
     definition: "A method for approximating the area under a curve by dividing it into primitive shapes and summing their areas.",
     latex: "\\sum_{i=1}^n f(x_i)\\Delta x",
@@ -911,6 +1210,66 @@ export const conceptData = [
     definition: "The integral accumulates infinitesimal contributions — geometrically the signed area under a curve over an interval.",
     latex: "\\int_a^b f(x)\\, dx = \\lim_{n\\to\\infty}\\sum_{i=1}^n f(x_i)\\Delta x",
     depends_on: ["limits", "continuity", "riemann_sum", "infintesimal"]
+  },
+  {
+    id: "implicit_differentiation", name: "Implicit Differentiation",
+    definition: "A technique for finding the derivative of a function defined implicitly by an equation.",
+    latex: "\\frac{dy}{dx} = F(x, y)",
+    depends_on: ["derivative", "implicit_functions"]
+  },
+  {
+    id: "differential", name: "Differential",
+    definition: "The differential of a function is the principal part of its change.",
+    latex: "df = f'(x)dx",
+    depends_on: ["derivative", "infintesimal"]
+  },
+  {
+    id: "ode", name: "Ordinary Differential Equation",
+    definition: "An equation involving an unknown function and its derivatives.",
+    latex: "F(x, y, y', y'', \\ldots, y^{(n)}) = 0",
+    depends_on: ["differential", "derivative", "implicit_differentiation"]
+  },
+  {
+    id: "first_order_ode", name: "First-Order ODE",
+    definition: "An ordinary differential equation of the first order.",
+    latex: "F(x, y, y') = 0",
+    depends_on: ["ode"]
+  },
+  {
+    id: "linear_ode", name: "Linear ODE",
+    definition: "An ordinary differential equation of the first order that is linear in the unknown function and its derivatives.",
+    latex: "a_1(x)y' + a_0(x)y = b(x)",
+    depends_on: ["first_order_ode"]
+  },
+  {
+    id: "separable_ode", name: "Separable ODE",
+    definition: "An ordinary differential equation of the first order that can be written as a product of functions of the independent and dependent variables.",
+    latex: "\\frac{dy}{dx} = f(x)g(y)",
+    depends_on: ["first_order_ode"]
+  },
+  {
+    id: "equilibrium_solution", name: "Equilibrium Solution",
+    definition: "A constant solution to a differential equation where the rate of change is zero. An equilibrium solution is considered stable if small perturbations around it decay back to the equilibrium, and unstable if they grow away from it.",
+    latex: "y' = 0",
+    depends_on: ["ode"]
+  },
+  {
+    id: "exponential_change", name: "Exponential Change",
+    definition: "A process where the rate of change is proportional to the current value.",
+    latex: "y \\prime = ky \\implies y = Ce^{kx}",
+    depends_on: ["first_order_ode", "chain_rule", "exponential_function"]
+  },
+  {
+    id: "linear_autonomous_ode", name: "First-Order Linear Autonomous ODE",
+    definition: "An ordinary differential equation of the first order that is linear and does not explicitly depend on the independent variable. The general solution is the sum of the homogeneous and particular solutions.",
+    latex: "y' = ky + b, \\quad y = Ce^{kx} - \\frac{b}{k}",
+    depends_on: ["first_order_ode", "linear_ode", "separable_ode"]
+  },
+  {
+    id: "logistic_equation", name: "Logistic Equation",
+    definition: "A first-order linear autonomous ODE that models population growth with a carrying capacity.",
+    latex: "y' = r y \\left(1 - \\frac{y}{K}\\right), \\\\ \\quad y = \\frac{K}{1 + Ce^{-rx}}",
+    depends_on: ["first_order_ode", "linear_autonomous_ode"]
   },
   {
     id: "u_sub", name: "U-Substitution",
@@ -940,12 +1299,18 @@ export const conceptData = [
     id: "power_rule", name: "Power Rule",
     definition: "The derivative of a power function x^n is n times x raised to n minus one.",
     latex: "\\frac{d}{dx}\\, x^n = n x^{n-1}",
-    depends_on: ["derivative"]
+    depends_on: ["derivative", "binomial_theorem"]
   },
   {
     id: "chain_rule", name: "Chain Rule",
     definition: "A rule for differentiating compositions of functions.",
     latex: "\\frac{d}{dx}[f(g(x))] = f'(g(x)) \\cdot g'(x)",
+    depends_on: ["derivative"]
+  },
+  {
+    id: "sum_difference_rule", name: "Sum and Difference Rule",
+    definition: "A rule for differentiating the sum or difference of two functions.",
+    latex: "\\frac{d}{dx}[f(x) \\pm g(x)] = \\\\ f'(x) \\pm g'(x)",
     depends_on: ["derivative"]
   },
   {
@@ -959,6 +1324,144 @@ export const conceptData = [
     definition: "A rule for differentiating the quotient of two functions.",
     latex: "\\frac{d}{dx}\\left(\\frac{f(x)}{g(x)}\\right) = \\\\ \\frac{f'(x)g(x) - f(x)g'(x)}{[g(x)]^2}",
     depends_on: ["derivative", "product_rule"]
+  },
+  {
+    id: "derivative_of_constant", name: "Constant Derivative",
+    definition: "The derivative of a constant function is zero.",
+    latex: "\\frac{d}{dx}[c] = 0",
+    depends_on: ["derivative"]
+  },
+  {
+    id: "derivative_of_variable", name: "Variable Derivative",
+    definition: "The derivative of the identity function is one.",
+    latex: "\\frac{d}{dx}[x] = 1",
+    depends_on: ["derivative"]
+  },
+  {
+    id: "derivative_product_constant_function", name: "Product of a Constant and a Function Derivative",
+    definition: "The derivative of a constant times a function is the constant times the derivative of the function.",
+    latex: "\\frac{d}{dx}[cf(x)] = c f'(x)",
+    depends_on: ["derivative", "derivative_of_constant"]
+  },
+  {
+    id: "derivative_of_exponential", name: "Exponential Function Derivative",
+    definition: "The derivative of an exponential function with base a is the product of the function and the natural logarithm of the base.",
+    latex: "\\frac{d}{dx}[a^x] = a^x \\ln(a)",
+    depends_on: ["derivative", "exponential_function"]
+  },
+  {
+    id: "derivative_eulers_exponential", name: "Euler's Number Exponential Derivative",
+    definition: "The derivative of the exponential function with base e is the function itself.",
+    latex: "\\frac{d}{dx}[e^x] = e^x",
+    depends_on: ["derivative_of_exponential", "eulers_number"]
+  },
+  {
+    id: "derivative_of_logarithm", name: "Logarithmic Function Derivative",
+    definition: "The derivative of the logarithmic function with base a is the reciprocal of the product of the argument and the natural logarithm of the base.",
+    latex: "\\frac{d}{dx}[\\log_a(x)] = \\frac{1}{x \\ln(a)}",
+    depends_on: ["derivative", "logarithms"]
+  },
+  {
+    id: "derivative_eulers_logarithm", name: "Euler's Number Logarithmic Derivative",
+    definition: "The derivative of the logarithmic function with base e is the reciprocal of the argument.",
+    latex: "\\frac{d}{dx}[\\ln(x)] = \\frac{1}{x}",
+    depends_on: ["derivative_of_logarithm", "eulers_number"]
+  },
+  {
+    id: "sine_limit", name: "Sine Limit",
+    definition: "The limit of the sine function divided by its argument as the argument approaches zero is one.",
+    latex: "\\lim_{x \\to 0} \\frac{\\sin(x)}{x} = 1",
+    depends_on: ["sine", "limits", "triangle", "inequality"]
+  },
+  {
+    id: "derivative_of_sine", name: "Sine Derivative",
+    definition: "The derivative of the sine function is the cosine function.",
+    latex: "\\frac{d}{dx}[\\sin(x)] = \\cos(x)",
+    depends_on: ["derivative", "sine", "sine_limit"]
+  },
+  {
+    id: "derivative_of_cosine", name: "Cosine Derivative",
+    definition: "The derivative of the cosine function is the negative of the sine function.",
+    latex: "\\frac{d}{dx}[\\cos(x)] = -\\sin(x)",
+    depends_on: ["derivative", "cosine", "cofunction_sine"]
+  },
+  {
+    id: "derivative_of_tangent", name: "Tangent Derivative",
+    definition: "The derivative of the tangent function is the square of the secant function.",
+    latex: "\\frac{d}{dx}[\\tan(x)] = \\sec^2(x)",
+    depends_on: ["tangent", "secant", "derivative_of_sine", "derivative_of_cosine", "quotient_rule"]
+  },
+  {
+    id: "derivative_of_cotangent", name: "Cotangent Derivative",
+    definition: "The derivative of the cotangent function is the negative of the square of the cosecant function.",
+    latex: "\\frac{d}{dx}[\\cot(x)] = -\\csc^2(x)",
+    depends_on: ["cotangent", "cosecant", "derivative_of_tangent", "chain_rule"]
+  },
+  {
+    id: "derivative_of_cosecant", name: "Cosecant Derivative",
+    definition: "The derivative of the cosecant function is the negative of the product of the cosecant and cotangent functions.",
+    latex: "\\frac{d}{dx}[\\csc(x)] = -\\csc(x) \\cot(x)",
+    depends_on: ["cosecant", "derivative_of_sine", "chain_rule"]
+  },
+  {
+    id: "derivative_of_secant", name: "Secant Derivative",
+    definition: "The derivative of the secant function is the product of the secant and tangent functions.",
+    latex: "\\frac{d}{dx}[\\sec(x)] = \\sec(x) \\tan(x)",
+    depends_on: ["secant", "derivative_of_cosine", "chain_rule"]
+  },
+  {
+    id: "derivative_of_arcsine", name: "Arcsine Derivative",
+    definition: "The derivative of the arcsine function is the reciprocal of the square root of one minus the square of the argument.",
+    latex: "\\frac{d}{dx}[\\sin^{-1}(x)] = \\frac{1}{\\sqrt{1 - x^2}}",
+    depends_on: ["derivative", "arcsine"]
+  },
+  {
+    id: "derivative_of_arccosine", name: "Arccosine Derivative",
+    definition: "The derivative of the arccosine function is the negative reciprocal of the square root of one minus the square of the argument.",
+    latex: "\\frac{d}{dx}[\\cos^{-1}(x)] = -\\frac{1}{\\sqrt{1 - x^2}}",
+    depends_on: ["derivative", "arccosine"]
+  },
+  {
+    id: "derivative_of_arctangent", name: "Arctangent Derivative",
+    definition: "The derivative of the arctangent function is the reciprocal of one plus the square of the argument.",
+    latex: "\\frac{d}{dx}[\\tan^{-1}(x)] = \\frac{1}{1 + x^2}",
+    depends_on: ["derivative", "arctangent"]
+  },
+  {
+    id: "derivative_of_arccotangent", name: "Arccotangent Derivative",
+    definition: "The derivative of the arccotangent function is the negative reciprocal of one plus the square of the argument.",
+    latex: "\\frac{d}{dx}[\\cot^{-1}(x)] = -\\frac{1}{1 + x^2}",
+    depends_on: ["derivative", "arccotangent"]
+  },
+  {
+    id: "derivative_of_arccosecant", name: "Arccosecant Derivative",
+    definition: "The derivative of the arccosecant function is the negative reciprocal of the product of the absolute value of the argument and the square root of the argument squared minus one.",
+    latex: "\\frac{d}{dx}[\\csc^{-1}(x)] = -\\frac{1}{|x| \\sqrt{x^2 - 1}}",
+    depends_on: ["derivative", "arccosecant"]
+  },
+  {
+    id: "derivative_of_arcsecant", name: "Arcsecant Derivative",
+    definition: "The derivative of the arcsecant function is the reciprocal of the product of the absolute value of the argument and the square root of the argument squared minus one.",
+    latex: "\\frac{d}{dx}[\\sec^{-1}(x)] = \\frac{1}{|x| \\sqrt{x^2 - 1}}",
+    depends_on: ["derivative", "arcsecant"]
+  },
+  {
+    id: "derivative_of_sinh", name: "Hyperbolic Sine Derivative",
+    definition: "The derivative of the hyperbolic sine function is the hyperbolic cosine function.",
+    latex: "\\frac{d}{dx}[\\sinh(x)] = \\cosh(x)",
+    depends_on: ["derivative", "hyperbolic-sine"]
+  },
+  {
+    id: "derivative_of_cosh", name: "Hyperbolic Cosine Derivative",
+    definition: "The derivative of the hyperbolic cosine function is the hyperbolic sine function.",
+    latex: "\\frac{d}{dx}[\\cosh(x)] = \\sinh(x)",
+    depends_on: ["derivative", "hyperbolic-cosine"]
+  },
+  {
+    id: "derivative_absolute_value", name: "Absolute Value Derivative",
+    definition: "The derivative of the absolute value function is the sign function.",
+    latex: "\\frac{d}{dx}[|x|] = \\frac{x}{|x|}",
+    depends_on: ["derivative", "absolute_value"]
   },
   {
     id: "ftc1", name: "Fundamental Theorem of Calculus Part I",

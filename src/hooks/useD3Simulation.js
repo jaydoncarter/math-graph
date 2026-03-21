@@ -6,6 +6,8 @@ import { conceptMap } from "../utils/graphUtils";
 import { getTierColor } from "../utils/colors";
 
 /**
+ * hooks/useD3Simulation.js
+ * 
  * Encapsulates all D3 simulation logic for the concept graph.
  *
  * @param {object} params
