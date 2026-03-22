@@ -47,6 +47,7 @@ export function useD3Simulation({
   // ── Resize observer ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!graphWrapperRef.current) return;
+    
     const ro = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       if (width > 0 && height > 0) setGraphDims({ w: width, h: height });

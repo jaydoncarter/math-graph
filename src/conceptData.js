@@ -17,6 +17,9 @@
  *  name         Similar to the ID, a consice and accurate name for the concept. This will
  *               appear at the top of the node description. Aim to keep the id and name as 
  *               similar as possible.
+ * 
+ *  field        An optional string attribute that indicates the field of mathematics that 
+ *               this concept belongs to. [TODO]
  *
  *  definition   A consice, fundamental description of the concept. No more that three 
  *               sentences. If more information is required to define a concept, use a 
