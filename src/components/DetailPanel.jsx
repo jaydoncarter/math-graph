@@ -80,6 +80,23 @@ function ConceptContent({
         </span>
       </div>
 
+      {selected.field && (
+         <div style={{
+           display: "inline-flex", alignItems: "center", gap: "6px",
+           padding: "3px 10px", borderRadius: "20px", marginBottom: "16px",
+           marginLeft: "8px",
+           border: "1px solid #4a9ece33",
+           background: "#4a9ece11",
+         }}>
+           <span style={{
+             fontSize: "11px", color: "#ffffff",
+             letterSpacing: "1.5px", textTransform: "uppercase",
+           }}>
+            {selected.field.replace(/_/g, " ")}
+          </span>
+         </div>
+     )}
+
       {/* ── Name ────────────────────────────────────────────────────── */}
       <h2 style={{
         fontSize: "22px", fontWeight: 600, color: "#d4c5a9", margin: "0 0 20px",
@@ -251,10 +268,12 @@ export function DetailPanel({
     ? (selected.depends_on ?? [])
         .map((id) => conceptData.find((c) => c.id === id))
         .filter(Boolean)
+        .sort((a, b) => a.tier - b.tier)
     : [];
 
   const dependents = selected
     ? conceptData.filter((c) => (c.depends_on ?? []).includes(selected.id))
+      .sort((a, b) => a.tier - b.tier)
     : [];
 
   const onClose = () => { setSelected(null); setHighlightId(null); };

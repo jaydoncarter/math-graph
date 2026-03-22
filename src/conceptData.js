@@ -360,7 +360,7 @@ export const conceptData = [
     id: "logarithms", name: "Logarithms",
     definition: "The operation of finding the exponent to which a base must be raised to produce a given value.",
     latex: "\\log_b(a) = c \\iff a = b^c",
-    depends_on: ["exponentiation", "fractional_exponents", "inverse-functions"]
+    depends_on: ["exponentiation", "fractional_exponents", "inverse_functions"]
   },
   {
   id: "natural_log", name: "Natural Logarithm",
@@ -537,7 +537,7 @@ export const conceptData = [
     depends_on: ["real_solutions", "cartesian_plane"]
   },
   {
-    id: "inverse-functions", name: "Inverse Functions",
+    id: "inverse_functions", name: "Inverse Functions",
     definition: "A relation that uniquely maps each element of a range to exactly one element of the domain of the original function.",
     latex: "f^{-1}(y) = x \\iff f(x) = y",
     depends_on: ["functions", "domain", "range"]
@@ -833,13 +833,13 @@ export const conceptData = [
   depends_on: ["elipse", "circle", "hyperbola", "parabola"]
 },
 {
-  id: "sine", name: "Sine",
+  id: "sine", name: "Sine", field: "trigonometry",
   definition: "Fundamental trigonometric function defined as the y- and x-coordinates of a point on the unit circle at angle θ. In a right triangle, it is the ratio of the length of the side opposite the angle to the length of the hypotenuse.",
   latex: "\\sin\\theta = \\frac{\\text{opposite}}{\\text{hypotenuse}} = y",
   depends_on: ["unit_circle", "trigonometry"]
 },
 {
-  id: "cosine", name: "Cosine",
+  id: "cosine", name: "Cosine", field: "trigonometry",
   definition: "Fundamental trigonometric function defined as the x-coordinate of a point on the unit circle at angle θ. In a right triangle, it is the ratio of the length of the side adjacent to the angle to the length of the hypotenuse.",
   latex: "\\cos\\theta = \\frac{\\text{adjacent}}{\\text{hypotenuse}} = x",
   depends_on: ["unit_circle", "trigonometry"]
@@ -872,109 +872,109 @@ export const conceptData = [
   id: "arcsine", name: "Arcsine",
   definition: "The inverse of the sine function, defined as the angle whose sine is a given value.",
   latex: "\\sin^{-1}(x) = \\theta \\iff \\sin(\\theta) = x",
-  depends_on: ["sine", "inverse-functions"]
+  depends_on: ["sine", "inverse_functions"]
 },
 {
   id: "arccosine", name: "Arccosine",
   definition: "The inverse of the cosine function, defined as the angle whose cosine is a given value.",
   latex: "\\cos^{-1}(x) = \\theta \\iff \\cos(\\theta) = x",
-  depends_on: ["cosine", "inverse-functions"]
+  depends_on: ["cosine", "inverse_functions"]
 },
 {
   id: "arctangent", name: "Arctangent",
   definition: "The inverse of the tangent function, defined as the angle whose tangent is a given value.",
   latex: "\\tan^{-1}(x) = \\theta \\iff \\tan(\\theta) = x",
-  depends_on: ["tangent", "inverse-functions"]
+  depends_on: ["tangent", "inverse_functions"]
 },
 {
   id: "arccotangent", name: "Arccotangent",
   definition: "The inverse of the cotangent function, defined as the angle whose cotangent is a given value.",
   latex: "\\cot^{-1}(x) = \\theta \\iff \\cot(\\theta) = x",
-  depends_on: ["cotangent", "inverse-functions"]
+  depends_on: ["cotangent", "inverse_functions"]
 },
 {
   id: "arccosecant", name: "Arccosecant",
   definition: "The inverse of the cosecant function, defined as the angle whose cosecant is a given value.",
   latex: "\\csc^{-1}(x) = \\theta \\iff \\csc(\\theta) = x",
-  depends_on: ["cosecant", "inverse-functions"]
+  depends_on: ["cosecant", "inverse_functions"]
 },
 {
   id: "arcsecant", name: "Arcsecant",
   definition: "The inverse of the secant function, defined as the angle whose secant is a given value.",
   latex: "\\sec^{-1}(x) = \\theta \\iff \\sec(\\theta) = x",
-  depends_on: ["secant", "inverse-functions"]
+  depends_on: ["secant", "inverse_functions"]
 },
 {
-  id: "hyperbolic-sine", name: "Hyperbolic Sine",
+  id: "hyperbolic_sine", name: "Hyperbolic Sine",
   definition: "A function defined based on the hyperbola rather than the unit circle. It can be expressed in terms of the exponential function.",
   latex: "\\sinh(x) = \\frac{e^x - e^{-x}}{2}",
   depends_on: ["exponential_function", "eulers_number", "sine", "hyperbola"]
 },
 {
-  id: "hyperbolic-cosine", name: "Hyperbolic Cosine",
+  id: "hyperbolic_cosine", name: "Hyperbolic Cosine",
   definition: "A function defined based on the hyperbola rather than the unit circle. It can be expressed in terms of the exponential function.",
   latex: "\\cosh(x) = \\frac{e^x + e^{-x}}{2}",
   depends_on: ["exponential_function", "eulers_number", "cosine", "hyperbola"],
 },
 {
-  id: "hyperbolic-tangent", name: "Hyperbolic Tangent",
+  id: "hyperbolic_tangent", name: "Hyperbolic Tangent",
   definition: "A function defined as the ratio of the hyperbolic sine to the hyperbolic cosine, or equivalently as the difference of the exponential functions over their sum.",
   latex: "\\tanh(x) = \\frac{\\sinh(x)}{\\cosh(x)}",
-  depends_on: ["hyperbolic-sine", "hyperbolic-cosine"]
+  depends_on: ["hyperbolic_sine", "hyperbolic_cosine"]
 },
 {
-  id: "hyperbolic-cotangent", name: "Hyperbolic Cotangent",
+  id: "hyperbolic_cotangent", name: "Hyperbolic Cotangent",
   definition: "A function defined as the ratio of the hyperbolic cosine to the hyperbolic sine, or equivalently as the reciprocal of the hyperbolic tangent.",
   latex: "\\coth(x) = \\frac{\\cosh(x)}{\\sinh(x)}",
-  depends_on: ["hyperbolic-sine", "hyperbolic-cosine", "hyperbolic-tangent", "reciprocal"]
+  depends_on: ["hyperbolic_sine", "hyperbolic_cosine", "hyperbolic_tangent", "reciprocal"]
 },
 {
-  id: "hyperbolic-cosecant", name: "Hyperbolic Cosecant",
+  id: "hyperbolic_cosecant", name: "Hyperbolic Cosecant",
   definition: "A function defined as the reciprocal of the hyperbolic sine.",
   latex: "\\text{csch}(x) = \\frac{1}{\\sinh(x)}",
-  depends_on: ["hyperbolic-sine", "reciprocal"]
+  depends_on: ["hyperbolic_sine", "reciprocal"]
 },
 {
-  id: "hyperbolic-secant", name: "Hyperbolic Secant",
+  id: "hyperbolic_secant", name: "Hyperbolic Secant",
   definition: "A function defined as the reciprocal of the hyperbolic cosine.",
   latex: "\\text{sech}(x) = \\frac{1}{\\cosh(x)}",
-  depends_on: ["hyperbolic-cosine", "reciprocal"]
+  depends_on: ["hyperbolic_cosine", "reciprocal"]
 },
 {
-  id: "arc-hyperbolic-sine", name: "Arc Hyperbolic Sine",
+  id: "arc-hyperbolic_sine", name: "Arc Hyperbolic Sine",
   definition: "The inverse of the hyperbolic sine function.",
   latex: "\\sinh^{-1}(x) = \\theta \\iff \\\\ \\sinh(\\theta) = x",
-  depends_on: ["hyperbolic-sine", "inverse-functions"]
+  depends_on: ["hyperbolic_sine", "inverse_functions"]
 },
 {
-  id: "arc-hyperbolic-cosine", name: "Arc Hyperbolic Cosine",
+  id: "arc-hyperbolic_cosine", name: "Arc Hyperbolic Cosine",
   definition: "The inverse of the hyperbolic cosine function.",
   latex: "\\cosh^{-1}(x) = \\theta \\iff \\\\ \\cosh(\\theta) = x",
-  depends_on: ["hyperbolic-cosine", "inverse-functions"]
+  depends_on: ["hyperbolic_cosine", "inverse_functions"]
 },
 {
-  id: "arc-hyperbolic-tangent", name: "Arc Hyperbolic Tangent",
+  id: "arc-hyperbolic_tangent", name: "Arc Hyperbolic Tangent",
   definition: "The inverse of the hyperbolic tangent function.",
   latex: "\\tanh^{-1}(x) = \\theta \\iff \\\\ \\tanh(\\theta) = x",
-  depends_on: ["hyperbolic-tangent", "inverse-functions"]
+  depends_on: ["hyperbolic_tangent", "inverse_functions"]
 },
 {
-  id: "arc-hyperbolic-cotangent", name: "Arc Hyperbolic Cotangent",
+  id: "arc-hyperbolic_cotangent", name: "Arc Hyperbolic Cotangent",
   definition: "The inverse of the hyperbolic cotangent function.",
   latex: "\\coth^{-1}(x) = \\theta \\iff \\\\ \\coth(\\theta) = x",
-  depends_on: ["hyperbolic-cotangent", "inverse-functions"]
+  depends_on: ["hyperbolic_cotangent", "inverse_functions"]
 },
 {
-  id: "arc-hyperbolic-cosecant", name: "Arc Hyperbolic Cosecant",
+  id: "arc-hyperbolic_cosecant", name: "Arc Hyperbolic Cosecant",
   definition: "The inverse of the hyperbolic cosecant function.",
   latex: "\\text{csch}^{-1}(x) = \\theta \\iff \\\\ \\text{csch}(\\theta) = x",
-  depends_on: ["hyperbolic-cosecant", "inverse-functions"]
+  depends_on: ["hyperbolic_cosecant", "inverse_functions"]
 },
 {
-  id: "arc-hyperbolic-secant", name: "Arc Hyperbolic Secant",
+  id: "arc-hyperbolic_secant", name: "Arc Hyperbolic Secant",
   definition: "The inverse of the hyperbolic secant function.",
   latex: "\\text{sech}^{-1}(x) = \\theta \\iff \\\\ \\text{sech}(\\theta) = x",
-  depends_on: ["hyperbolic-secant", "inverse-functions"]
+  depends_on: ["hyperbolic_secant", "inverse_functions"]
 },
 {
   id: "pythagorean_identity", name: "Pythagorean Identity",
@@ -1449,13 +1449,13 @@ export const conceptData = [
     id: "derivative_of_sinh", name: "Hyperbolic Sine Derivative",
     definition: "The derivative of the hyperbolic sine function is the hyperbolic cosine function.",
     latex: "\\frac{d}{dx}[\\sinh(x)] = \\cosh(x)",
-    depends_on: ["derivative", "hyperbolic-sine"]
+    depends_on: ["derivative", "hyperbolic_sine"]
   },
   {
     id: "derivative_of_cosh", name: "Hyperbolic Cosine Derivative",
     definition: "The derivative of the hyperbolic cosine function is the hyperbolic sine function.",
     latex: "\\frac{d}{dx}[\\cosh(x)] = \\sinh(x)",
-    depends_on: ["derivative", "hyperbolic-cosine"]
+    depends_on: ["derivative", "hyperbolic_cosine"]
   },
   {
     id: "derivative_absolute_value", name: "Absolute Value Derivative",

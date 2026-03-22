@@ -29,6 +29,12 @@ export function Sidebar({
   selectNode,
   getTierColor,
   TIER_COLORS,
+  fieldHighlight,
+  setFieldHighlight,
+  showDepsArrows,
+  setShowDepsArrows,
+  showUnlockArrows,
+  setShowUnlockArrows,
 }) {
   const [search, setSearch]               = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -193,6 +199,34 @@ export function Sidebar({
         )}
       </div>
 
+      {/* ── Graph display toggles ───────────────────────────────────── */}
+      <div style={{
+        padding: "10px 20px",
+        borderBottom: "1px solid #1e2d3d",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        }}>
+      <ToggleButton
+        active={showDepsArrows}
+        onToggle={() => setShowDepsArrows((v) => !v)}
+        color="#e2b96f"
+        label="Dependency Arrows"
+      />
+      <ToggleButton
+        active={showUnlockArrows}
+        onToggle={() => setShowUnlockArrows((v) => !v)}
+        color="#4a9ece"
+        label="Unlocks Arrows"
+      />
+      <ToggleButton
+        active={fieldHighlight}
+        onToggle={() => setFieldHighlight((v) => !v)}
+        color="#d4c5a9"
+        label="Field Grouping"
+      />
+    </div>
+
       {/* ── Concept list ───────────────────────────────────────────────── */}
       <div ref={sidebarListRef} style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
         {[...conceptData].sort((a, b) => a.tier - b.tier).map((c) => (
@@ -250,5 +284,51 @@ export function Sidebar({
         </div>
       </div>
     </div>
+  );
+}
+
+function ToggleButton({ active, onToggle, color, label }) {
+  return (
+    <button
+      onClick={onToggle}
+      style={{
+        width: "100%",
+        padding: "8px 12px",
+        background: active ? `${color}18` : "transparent",
+        border: `1px solid ${active ? `${color}55` : "#1e2d3d"}`,
+        borderRadius: "6px",
+        color: active ? color : "#5a6a7a",
+        cursor: "pointer",
+        fontSize: "11px",
+        letterSpacing: "1.5px",
+        textTransform: "uppercase",
+        fontFamily: "'Crimson Pro', Georgia, serif",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        transition: "all 0.2s",
+        outline: "none",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "#4a9ece18";
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = "transparent";
+        }
+
+      }}
+    >
+      <span style={{
+        width: "8px",
+        height: "8px",
+        borderRadius: "50%",
+        flexShrink: 0,
+        background: active ? color : "#3a4a5a",
+        boxShadow: active ? `0 0 6px ${color}` : "none",
+        transition: "all 0.2s",
+      }} />
+      {label}
+    </button>
   );
 }

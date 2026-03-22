@@ -25,6 +25,9 @@ export function useD3Simulation({
   graphWrapperRef,
   isMobile,
   highlightId,
+  fieldHighlight,
+  showDepsArrows,
+  showUnlockArrows,
   setSelected,
   setHighlightId,
 }) {
@@ -149,6 +152,14 @@ export function useD3Simulation({
       .attr("orient", "auto")
       .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#e2b96f");
 
+    defs.append("marker")
+      .attr("id", "arrowBlue")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", arrowRefX).attr("refY", 0)
+      .attr("markerWidth", 6).attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#4a9ece");
+
     // ── Zoom ────────────────────────────────────────────────────────────
     const g = svg.append("g");
     const zoom = d3
@@ -213,11 +224,22 @@ export function useD3Simulation({
 
     // Main filled circle
     node.append("circle")
+      .attr("class", "main-circle")
       .attr("r", NODE_R)
       .attr("fill",  (d) => `${getTierColor(d.tier)}18`)
       .attr("stroke", (d) => getTierColor(d.tier))
       .attr("stroke-width", 1.5)
       .attr("filter", "url(#glow)");
+
+      // Field-ring — dashed outer ring shown when field grouping is active
+    node.append("circle")
+      .attr("class", "field-ring")
+      .attr("r", NODE_R + 6)
+      .attr("fill", "none")
+      .attr("stroke", "transparent")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-dasharray", "4,3")
+      .attr("pointer-events", "none");
 
     // Label — split into two tspan lines when the name has multiple words
     node.append("text")
@@ -262,44 +284,70 @@ export function useD3Simulation({
   // Runs on every highlightId change without rebuilding the simulation.
   // Updates colours, opacities, stroke widths, and arrowhead markers in-place.
   useEffect(() => {
-    if (!nodesRef.current || !edgesRef.current) return;
+  if (!nodesRef.current || !edgesRef.current) return;
 
-    const depIds = highlightId
-      ? new Set(conceptData.find((c) => c.id === highlightId)?.depends_on ?? [])
-      : new Set();
+  const selectedConcept = highlightId
+    ? conceptData.find((c) => c.id === highlightId)
+    : null;
 
-    // Inner circle: fill intensity and selection glow
-    nodesRef.current.selectAll("circle:nth-child(1)")
-      .attr("fill", (d) =>
-        d.id === highlightId
-          ? `${getTierColor(d.tier)}55`
-          : `${getTierColor(d.tier)}18`
-      )
-      .attr("stroke-width", (d) => (d.id === highlightId ? 3 : 1.5))
-      .attr("filter", (d) =>
-        d.id === highlightId ? "url(#selectGlow)" : "url(#glow)"
-      );
+  // ── Main circle: fill / glow ────────────────────────────────────────────
+  nodesRef.current.selectAll("circle.main-circle")
+    .attr("fill", (d) =>
+      d.id === highlightId
+        ? `${getTierColor(d.tier)}55`
+        : `${getTierColor(d.tier)}18`
+    )
+    .attr("stroke-width", (d) => (d.id === highlightId ? 3 : 1.5))
+    .attr("filter", (d) =>
+      d.id === highlightId ? "url(#selectGlow)" : "url(#glow)"
+    );
 
-    // Edges: highlight incoming edges to the selected node
-    edgesRef.current
-      .attr("stroke", (d) => {
-        const tid = typeof d.target === "object" ? d.target.id : d.target;
-        return tid === highlightId ? "#e2b96f" : "#2a3a4a";
-      })
-      .attr("opacity", (d) => {
-        if (!highlightId) return 0.7;
-        const tid = typeof d.target === "object" ? d.target.id : d.target;
-        return tid === highlightId ? 1 : 0.15;
-      })
-      .attr("stroke-width", (d) => {
-        const tid = typeof d.target === "object" ? d.target.id : d.target;
-        return tid === highlightId ? 2.5 : 1.5;
-      })
-      .attr("marker-end", (d) => {
-        const tid = typeof d.target === "object" ? d.target.id : d.target;
-        return tid === highlightId ? "url(#arrowHl)" : "url(#arrow)";
-      });
-  }, [highlightId]);
+  // ── Field ring: shown for same-field peers when toggle is on ────────────
+  const selectedField = selectedConcept?.field ?? null;
+  nodesRef.current.selectAll("circle.field-ring")
+    .attr("stroke", (d) => {
+      if (!fieldHighlight || !highlightId || !selectedField) return "transparent";
+      if (d.id === highlightId || !d.field) return "transparent";
+      return d.field === selectedField ? "#d4c5a9" : "transparent";
+    })
+    .attr("opacity", (d) => {
+      if (!fieldHighlight || !highlightId || !selectedField) return 0;
+      if (d.id === highlightId || !d.field) return 0;
+      return d.field === selectedField ? 0.7 : 0;
+    });
+
+  // ── Edges ───────────────────────────────────────────────────────────────
+  edgesRef.current
+    .attr("stroke", (d) => {
+      const tid = typeof d.target === "object" ? d.target.id : d.target;
+      const sid = typeof d.source === "object" ? d.source.id : d.source;
+      if (tid === highlightId) return "#e2b96f";   // dependency  → yellow
+      if (sid === highlightId) return "#4a9ece";   // unlocks     → blue
+      return "#2a3a4a";
+    })
+    .attr("opacity", (d) => {
+      if (!highlightId) return 0.7;
+      const tid = typeof d.target === "object" ? d.target.id : d.target;
+      const sid = typeof d.source === "object" ? d.source.id : d.source;
+      const isDep    = tid === highlightId;
+      const isUnlock = sid === highlightId;
+      if (isDep    && !showDepsArrows)    return 0;
+      if (isUnlock && !showUnlockArrows)  return 0;
+      return isDep || isUnlock ? 1 : 0.15;
+    })
+    .attr("stroke-width", (d) => {
+      const tid = typeof d.target === "object" ? d.target.id : d.target;
+      const sid = typeof d.source === "object" ? d.source.id : d.source;
+      return tid === highlightId || sid === highlightId ? 2.5 : 1.5;
+    })
+    .attr("marker-end", (d) => {
+      const tid = typeof d.target === "object" ? d.target.id : d.target;
+      const sid = typeof d.source === "object" ? d.source.id : d.source;
+      if (tid === highlightId) return "url(#arrowHl)";
+      if (sid === highlightId) return "url(#arrowBlue)";
+      return "url(#arrow)";
+    });
+}, [highlightId, fieldHighlight, showDepsArrows, showUnlockArrows]);
 
   return { selectNode };
 }

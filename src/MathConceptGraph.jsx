@@ -7,6 +7,8 @@ import { Sidebar }                from "./components/Sidebar";
 import { DetailPanel }            from "./components/DetailPanel";
 
 /**
+ * MathConceptData.jsx
+ * 
  * Root component. Owns only the shared cross-component state:
  *   selected, highlightId, katexReady, isMobile, sidebarOpen
  *
@@ -25,6 +27,9 @@ export default function MathConceptGraph() {
   const [katexReady,   setKatexReady]   = useState(false);
   const [isMobile,     setIsMobile]     = useState(() => window.innerWidth < 768);
   const [sidebarOpen,  setSidebarOpen]  = useState(false);
+  const [fieldHighlight, setFieldHighlight] = useState(true);
+  const [showDepsArrows,  setShowDepsArrows]  = useState(true);
+  const [showUnlockArrows, setShowUnlockArrows] = useState(true);
 
   // ── Mobile breakpoint listener ────────────────────────────────────────
   useEffect(() => {
@@ -54,6 +59,9 @@ export default function MathConceptGraph() {
     graphWrapperRef,
     isMobile,
     highlightId,
+    fieldHighlight,
+    showDepsArrows,
+    showUnlockArrows,
     setSelected,
     setHighlightId,
   });
@@ -105,6 +113,12 @@ export default function MathConceptGraph() {
         selectNode={selectNode}
         getTierColor={getTierColor}
         TIER_COLORS={TIER_COLORS}
+        fieldHighlight={fieldHighlight}
+        setFieldHighlight={setFieldHighlight}
+        showDepsArrows={showDepsArrows}
+        setShowDepsArrows={setShowDepsArrows}
+        showUnlockArrows={showUnlockArrows}
+        setShowUnlockArrows={setShowUnlockArrows}
       />
 
       {/* ── Main graph area ───────────────────────────────────────────── */}
