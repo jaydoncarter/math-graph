@@ -84,15 +84,15 @@ export default function MathConceptGraph() {
           onClick={() => setSidebarOpen((v) => !v)}
           style={{
             position: "absolute", top: "12px", left: "12px", zIndex: 100,
-            background: "#111820", border: "1px solid #1e2d3d", borderRadius: "8px",
-            color: "#d4c5a9", cursor: "pointer", padding: "8px 10px",
-            display: "flex", flexDirection: "column", gap: "4px", lineHeight: 0,
+            background: "#111820", border: "1px solid #1e2d3d", borderRadius: "12px",
+            color: "#d4c5a9", cursor: "pointer", padding: "12px 15px",
+            display: "flex", flexDirection: "column", gap: "6px", lineHeight: 0,
           }}
           aria-label="Toggle concept list"
         >
-          <span style={{ display: "block", width: "18px", height: "2px", background: "#d4c5a9", borderRadius: "1px" }} />
-          <span style={{ display: "block", width: "18px", height: "2px", background: "#d4c5a9", borderRadius: "1px" }} />
-          <span style={{ display: "block", width: "18px", height: "2px", background: "#d4c5a9", borderRadius: "1px" }} />
+          <span style={{ display: "block", width: "27px", height: "3px", background: "#d4c5a9", borderRadius: "2px" }} />
+          <span style={{ display: "block", width: "27px", height: "3px", background: "#d4c5a9", borderRadius: "2px" }} />
+          <span style={{ display: "block", width: "27px", height: "3px", background: "#d4c5a9", borderRadius: "2px" }} />
         </button>
       )}
 
