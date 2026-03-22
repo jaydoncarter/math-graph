@@ -85,11 +85,11 @@ function ConceptContent({
            display: "inline-flex", alignItems: "center", gap: "6px",
            padding: "3px 10px", borderRadius: "20px", marginBottom: "16px",
            marginLeft: "8px",
-           border: "1px solid #4a9ece33",
-           background: "#4a9ece11",
+           border: "1px solid #d4c5a955",
+           background: "#d4c5a918",
          }}>
            <span style={{
-             fontSize: "11px", color: "#ffffff",
+             fontSize: "11px", color: "#d4c5a9",
              letterSpacing: "1.5px", textTransform: "uppercase",
            }}>
             {selected.field.replace(/_/g, " ")}

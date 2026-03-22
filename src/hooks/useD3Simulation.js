@@ -47,13 +47,19 @@ export function useD3Simulation({
   // ── Resize observer ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!graphWrapperRef.current) return;
-    
+    let timer;
     const ro = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
-      if (width > 0 && height > 0) setGraphDims({ w: width, h: height });
+      if (width > 0 && height > 0) {
+        clearTimeout(timer);
+        // Debounce to avoid rapid rebuilds while dismissing keyboard on mobile. 300 ms 
+        // is slightly longer than the keyboard dismissal animation, so the simulation 
+        // will only rebuild once the final stable dimensions are reached.
+        timer = setTimeout(() => setGraphDims({ w: width, h: height }), 300);
+       }
     });
     ro.observe(graphWrapperRef.current);
-    return () => ro.disconnect();
+    return () => { ro.disconnect(); clearTimeout(timer); };
   }, [graphWrapperRef]);
 
   // ── selectNode ───────────────────────────────────────────────────────────
