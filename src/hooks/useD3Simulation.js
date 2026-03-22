@@ -40,26 +40,45 @@ export function useD3Simulation({
   const zoomRef      = useRef(null);   // d3 zoom behaviour
   const nodesDataRef = useRef([]);     // live node objects (mutated by simulation)
 
-  // graphDims drives the simulation rebuild effect. It is set by ResizeObserver
-  // so the simulation always uses real pixel dimensions, never 0×0.
+  // graphDims is set exactly once — by the ResizeObserver on first mount —
+  // to give the build effect real pixel dimensions instead of 0×0.
+  // After that, resizes are handled non-destructively inside the observer itself.
   const [graphDims, setGraphDims] = useState(null);
 
   // ── Resize observer ──────────────────────────────────────────────────────
+  // On first paint: no simulation exists yet, so setGraphDims triggers the
+  // build effect below.
+  //
+  // On every subsequent resize: dims.current is updated for pan math, then
+  // the existing simulation's forces are nudged and it is restarted gently.
+  // This avoids a full teardown/rebuild, which would wipe nodesRef/edgesRef
+  // and cause the highlight effect to miss its next run.
   useEffect(() => {
     if (!graphWrapperRef.current) return;
-    let timer;
+
     const ro = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
-      if (width > 0 && height > 0) {
-        clearTimeout(timer);
-        // Debounce to avoid rapid rebuilds while dismissing keyboard on mobile. 300 ms 
-        // is slightly longer than the keyboard dismissal animation, so the simulation 
-        // will only rebuild once the final stable dimensions are reached.
-        timer = setTimeout(() => setGraphDims({ w: width, h: height }), 300);
-       }
+      if (width <= 0 || height <= 0) return;
+
+      dims.current = { w: width, h: height };
+
+      if (simRef.current) {
+        if (width !== prevWidth) {
+          // Genuine layout change — nudge forces and re-settle
+          simRef.current
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("y", d3.forceY((d) => (d.tier / 6) * height * 0.8 + height * 0.1).strength(0.45))
+            .alpha(0.3)
+            .restart();
+        }
+        // Height-only change (mobile keyboard show/hide): dims.current is updated
+        // above for pan math, but the sim is left alone — nodes don't move.
+      } else {
+        setGraphDims({ w: width, h: height });
+  }
     });
     ro.observe(graphWrapperRef.current);
-    return () => { ro.disconnect(); clearTimeout(timer); };
+    return () => ro.disconnect();
   }, [graphWrapperRef]);
 
   // ── selectNode ───────────────────────────────────────────────────────────
@@ -104,18 +123,23 @@ export function useD3Simulation({
     [isMobile, setSelected, setHighlightId, svgRef]
   );
 
-  // ── Simulation build / rebuild ───────────────────────────────────────────
-  // Re-runs whenever the measured dimensions change (initial mount, window
-  // resize) or isMobile flips (node sizes and arrowhead offsets differ).
+  // ── Simulation build ─────────────────────────────────────────────────────
+  // Runs on initial mount (graphDims: null → object) and whenever isMobile
+  // flips, since node radius and arrowhead offsets differ between the two modes.
+  //
+  // dims.current always holds the latest measured size (kept fresh by the
+  // ResizeObserver above), so the build always uses real pixel dimensions
+  // even if it is triggered by an isMobile change rather than a resize.
   useEffect(() => {
     if (!graphDims) return; // wait for ResizeObserver to give real dimensions
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // full teardown before rebuilding
 
-    const W = graphDims.w;
-    const H = graphDims.h;
-    dims.current = { w: W, h: H };
+    // Use dims.current rather than graphDims so an isMobile-triggered rebuild
+    // always gets the latest measured size (graphDims is only set once).
+    const W = dims.current.w;
+    const H = dims.current.h;
 
     // ── SVG defs: filters and arrowhead markers ──────────────────────────
     const defs = svg.append("defs");
@@ -238,7 +262,7 @@ export function useD3Simulation({
       .attr("stroke-width", 1.5)
       .attr("filter", "url(#glow)");
 
-      // Field-ring — dashed outer ring shown when field grouping is active
+    // Field-ring — dashed outer ring shown when field grouping is active
     node.append("circle")
       .attr("class", "field-ring")
       .attr("r", NODE_R + 6)
@@ -290,71 +314,73 @@ export function useD3Simulation({
   // ── Highlight update ─────────────────────────────────────────────────────
   // Runs on every highlightId change without rebuilding the simulation.
   // Updates colours, opacities, stroke widths, and arrowhead markers in-place.
+  // Because resizes no longer wipe nodesRef/edgesRef, this effect never risks
+  // running against stale (null) selections after a keyboard dismiss or resize.
   useEffect(() => {
-  if (!nodesRef.current || !edgesRef.current) return;
+    if (!nodesRef.current || !edgesRef.current) return;
 
-  const selectedConcept = highlightId
-    ? conceptData.find((c) => c.id === highlightId)
-    : null;
+    const selectedConcept = highlightId
+      ? conceptData.find((c) => c.id === highlightId)
+      : null;
 
-  // ── Main circle: fill / glow ────────────────────────────────────────────
-  nodesRef.current.selectAll("circle.main-circle")
-    .attr("fill", (d) =>
-      d.id === highlightId
-        ? `${getTierColor(d.tier)}55`
-        : `${getTierColor(d.tier)}18`
-    )
-    .attr("stroke-width", (d) => (d.id === highlightId ? 3 : 1.5))
-    .attr("filter", (d) =>
-      d.id === highlightId ? "url(#selectGlow)" : "url(#glow)"
-    );
+    // ── Main circle: fill / glow ────────────────────────────────────────────
+    nodesRef.current.selectAll("circle.main-circle")
+      .attr("fill", (d) =>
+        d.id === highlightId
+          ? `${getTierColor(d.tier)}55`
+          : `${getTierColor(d.tier)}18`
+      )
+      .attr("stroke-width", (d) => (d.id === highlightId ? 3 : 1.5))
+      .attr("filter", (d) =>
+        d.id === highlightId ? "url(#selectGlow)" : "url(#glow)"
+      );
 
-  // ── Field ring: shown for same-field peers when toggle is on ────────────
-  const selectedField = selectedConcept?.field ?? null;
-  nodesRef.current.selectAll("circle.field-ring")
-    .attr("stroke", (d) => {
-      if (!fieldHighlight || !highlightId || !selectedField) return "transparent";
-      if (d.id === highlightId || !d.field) return "transparent";
-      return d.field === selectedField ? "#d4c5a9" : "transparent";
-    })
-    .attr("opacity", (d) => {
-      if (!fieldHighlight || !highlightId || !selectedField) return 0;
-      if (d.id === highlightId || !d.field) return 0;
-      return d.field === selectedField ? 0.7 : 0;
-    });
+    // ── Field ring: shown for same-field peers when toggle is on ────────────
+    const selectedField = selectedConcept?.field ?? null;
+    nodesRef.current.selectAll("circle.field-ring")
+      .attr("stroke", (d) => {
+        if (!fieldHighlight || !highlightId || !selectedField) return "transparent";
+        if (d.id === highlightId || !d.field) return "transparent";
+        return d.field === selectedField ? "#d4c5a9" : "transparent";
+      })
+      .attr("opacity", (d) => {
+        if (!fieldHighlight || !highlightId || !selectedField) return 0;
+        if (d.id === highlightId || !d.field) return 0;
+        return d.field === selectedField ? 0.7 : 0;
+      });
 
-  // ── Edges ───────────────────────────────────────────────────────────────
-  edgesRef.current
-    .attr("stroke", (d) => {
-      const tid = typeof d.target === "object" ? d.target.id : d.target;
-      const sid = typeof d.source === "object" ? d.source.id : d.source;
-      if (tid === highlightId) return "#e2b96f";   // dependency  → yellow
-      if (sid === highlightId) return "#4a9ece";   // unlocks     → blue
-      return "#2a3a4a";
-    })
-    .attr("opacity", (d) => {
-      if (!highlightId) return 0.7;
-      const tid = typeof d.target === "object" ? d.target.id : d.target;
-      const sid = typeof d.source === "object" ? d.source.id : d.source;
-      const isDep    = tid === highlightId;
-      const isUnlock = sid === highlightId;
-      if (isDep    && !showDepsArrows)    return 0;
-      if (isUnlock && !showUnlockArrows)  return 0;
-      return isDep || isUnlock ? 1 : 0.15;
-    })
-    .attr("stroke-width", (d) => {
-      const tid = typeof d.target === "object" ? d.target.id : d.target;
-      const sid = typeof d.source === "object" ? d.source.id : d.source;
-      return tid === highlightId || sid === highlightId ? 2.5 : 1.5;
-    })
-    .attr("marker-end", (d) => {
-      const tid = typeof d.target === "object" ? d.target.id : d.target;
-      const sid = typeof d.source === "object" ? d.source.id : d.source;
-      if (tid === highlightId) return "url(#arrowHl)";
-      if (sid === highlightId) return "url(#arrowBlue)";
-      return "url(#arrow)";
-    });
-}, [highlightId, fieldHighlight, showDepsArrows, showUnlockArrows]);
+    // ── Edges ───────────────────────────────────────────────────────────────
+    edgesRef.current
+      .attr("stroke", (d) => {
+        const tid = typeof d.target === "object" ? d.target.id : d.target;
+        const sid = typeof d.source === "object" ? d.source.id : d.source;
+        if (tid === highlightId) return "#e2b96f";   // dependency  → yellow
+        if (sid === highlightId) return "#4a9ece";   // unlocks     → blue
+        return "#2a3a4a";
+      })
+      .attr("opacity", (d) => {
+        if (!highlightId) return 0.7;
+        const tid = typeof d.target === "object" ? d.target.id : d.target;
+        const sid = typeof d.source === "object" ? d.source.id : d.source;
+        const isDep    = tid === highlightId;
+        const isUnlock = sid === highlightId;
+        if (isDep    && !showDepsArrows)   return 0;
+        if (isUnlock && !showUnlockArrows) return 0;
+        return isDep || isUnlock ? 1 : 0.15;
+      })
+      .attr("stroke-width", (d) => {
+        const tid = typeof d.target === "object" ? d.target.id : d.target;
+        const sid = typeof d.source === "object" ? d.source.id : d.source;
+        return tid === highlightId || sid === highlightId ? 2.5 : 1.5;
+      })
+      .attr("marker-end", (d) => {
+        const tid = typeof d.target === "object" ? d.target.id : d.target;
+        const sid = typeof d.source === "object" ? d.source.id : d.source;
+        if (tid === highlightId) return "url(#arrowHl)";
+        if (sid === highlightId) return "url(#arrowBlue)";
+        return "url(#arrow)";
+      });
+  }, [highlightId, fieldHighlight, showDepsArrows, showUnlockArrows]);
 
   return { selectNode };
 }
