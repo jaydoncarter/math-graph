@@ -310,7 +310,10 @@ function ToggleButton({ active, onToggle, color, label }) {
         outline: "none",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "#4a9ece18";
+        if (!active) {
+          e.currentTarget.style.background = "#161f2b";
+        }
+        
       }}
       onMouseLeave={(e) => {
         if (!active) {

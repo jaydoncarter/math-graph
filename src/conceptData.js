@@ -19,7 +19,7 @@
  *               similar as possible.
  *
  *  field        An optional string attribute that indicates the field of mathematics that
- *               this concept belongs to. [TODO]
+ *               this concept belongs to. [TODO: Expand implementation]
  *
  *  definition   A consice, fundamental description of the concept. No more that three
  *               sentences. If more information is required to define a concept, use a
@@ -33,8 +33,10 @@
  *  depends_on    The dependency agency list for this node. The ids in this list cannot
  *                belong to nodes that this node unlocks or leads to, directly or
  *                indirectly. Each id should be a concept that this node directly depends
- *                on, derives from, or is influenced by. There must be at least id, but no
- *                more than is necessary.
+ *                on, derives from, or is influenced by. There must be zero or more ids,
+ *                but no more than is necessary. Attempt to minimize root nodes, as most 
+ *                concepts build upon others. There are currently only three root nodes: 
+ *                the laws of classical logic.
  *
  *  hasRichContent  An optional boolean flag that indicates to the graph renderer whether
  *                  to override the basic content with a rich content file, as defined by
@@ -223,7 +225,7 @@ export const conceptData = [
     name: "Arithmetic",
     definition:
       "The branch of mathematics dealing with the properties and manipulation of numbers. Numbers can be combined and separated.",
-    latex: "a + b = c",
+    latex: "a \\land b = c",
     depends_on: ["whole_numbers", "integers", "natural_numbers", "empty_set"],
   },
   {
@@ -469,7 +471,6 @@ export const conceptData = [
       "A function where a variable base is raised to a variable exponent.",
     latex: "f(x) = x^x,\\quad x > 0",
     depends_on: ["functions", "exponentiation"],
-    hasRichContent: true,
   },
   {
     id: "scientific_notation",
@@ -848,7 +849,7 @@ export const conceptData = [
     name: "Polynomials",
     definition:
       "An expression consisting of variables and coefficients combined using addition, subtraction, and non-negative integer exponents.",
-    latex: "P(x) = a_n x^n + a_{n-1}x^{n-1} + \\cdots + a_1 x + a_0",
+    latex: "P(x) = a_n x^n + a_{n-1}x^{n-1} \\\\ + \\cdots + a_1 x + a_0",
     depends_on: ["variable", "exponentiation", "addition", "multiplication"],
   },
   {
@@ -1761,6 +1762,14 @@ export const conceptData = [
     depends_on: ["limits", "continuity", "slope", "functions", "infinitesimal"],
   },
   {
+    id: "antiderivative",
+    name: "Antiderivative",
+    definition:
+      "An antiderivative of a function is a function whose derivative is the original function.",
+    latex: "f(x) = \\frac{d}{dx} \\left[ F(x) \\right]",
+    depends_on: ["derivative"],
+  },
+  {
     id: "integral",
     name: "Integral",
     definition:
@@ -1768,6 +1777,22 @@ export const conceptData = [
     latex:
       "\\int_a^b f(x)\\, dx = \\lim_{n\\to\\infty}\\sum_{i=1}^n f(x_i)\\Delta x",
     depends_on: ["limits", "continuity", "riemann_sum", "infinitesimal"],
+  },
+  {
+    id: "indefinite_integral",
+    name: "Indefinite Integral",
+    definition:
+      "The indefinite integral of a function is the family of all its antiderivatives. It represents the most general form of the integral without specified limits of integration. The constant of integration, C, accounts for the fact that there are infinitely many antiderivatives differing by a constant.",
+    latex: "\\int f(x)\\, dx = F(x) + C",
+    depends_on: ["integral", "power_rule", "ftc1"],
+  },
+  {
+    id: "definite_integral",
+    name: "Definite Integral",
+    definition:
+      "The definite integral of a function over an interval is the signed area under the curve.",
+    latex: "\\int_a^b f(x)\\, dx",
+    depends_on: ["integral"],
   },
   {
     id: "implicit_differentiation",
@@ -1875,12 +1900,20 @@ export const conceptData = [
     depends_on: ["integral", "pfd"],
   },
   {
+    id: "trig_sub",
+    name: "Trigonometric Substitution",
+    definition:
+      "A technique for evaluating integrals by substituting trigonometric functions for algebraic ones.",
+    latex: "\\int \\frac{dx}{\\sqrt{a^2 - x^2}} = \\int \\frac{a\\cos\\theta \\, d\\theta}{a\\cos\\theta} \\\\ = \\int d\\theta",
+    depends_on: ["integral", "pythagorean_identity"],
+  },
+  {
     id: "improper_integrals",
     name: "Improper Integrals",
     definition:
       "Integrals with infinite limits or integrands that diverge to infinity within the interval of integration.",
     latex:
-      "\\int_a^\\infty f(x)\\, dx = \\lim_{t \\to \\infty} \\int_a^t f(x)\\, dx",
+      "\\int_{a}^{\\infty} f(x)\\, dx = \\lim_{t \\to \\infty} \\int_a^t f(x)\\, dx",
     depends_on: ["integral", "limits", "infinity", "divergence"],
   },
   {
@@ -2119,7 +2152,7 @@ export const conceptData = [
     definition:
       "Differentiation and integration are inverse operations. The derivative of the integral of a function is the original function.",
     latex: "\\frac{d}{dx} \\left( \\int_{a}^{x} f(t) \\, dt \\right) = f(x)",
-    depends_on: ["derivative", "integral"],
+    depends_on: ["derivative", "integral", "antiderivative"],
   },
   {
     id: "ftc2",
@@ -2127,6 +2160,8 @@ export const conceptData = [
     definition:
       "Integrals of functions can be evaluated using antiderivatives. The integral of a function over an interval can be computed using any one of its infinitely many antiderivatives.",
     latex: "\\int_a^b f(x)\\, dx = F(b) - F(a)",
-    depends_on: ["ftc1"],
+    depends_on: ["ftc1", "definite_integral"],
   },
 ];
+
+console.log("Number of concepts:", conceptData.length);

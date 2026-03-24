@@ -4,7 +4,7 @@ import { KatexBlock } from "../utils/katex";
 /**
  * components/ContentRenderer.jsx
  *
- * Renders the visual elements of the graph.
+ * Renders the detail panel content blocks.
  */
 
 // ─── Block registry ──────────────────────────────────────────────────────────

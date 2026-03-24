@@ -42,12 +42,6 @@ export default function MathConceptGraph() {
   // ── One-time asset loading ────────────────────────────────────────────
   useEffect(() => {
     loadKatex().then(() => setKatexReady(true));
-
-    const link  = document.createElement("link");
-    link.rel    = "stylesheet";
-    link.href   =
-      "https://fonts.googleapis.com/css2?family=IM+Fell+English&family=Crimson+Pro:wght@300;400;600&display=swap";
-    document.head.appendChild(link);
   }, []);
 
   // ── D3 simulation ─────────────────────────────────────────────────────

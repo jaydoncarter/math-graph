@@ -62,24 +62,15 @@ export function useD3Simulation({
 
       dims.current = { w: width, h: height };
 
-      if (simRef.current) {
-        if (width !== prevWidth) {
-          // Genuine layout change — nudge forces and re-settle
-          simRef.current
-            .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("y", d3.forceY((d) => (d.tier / 6) * height * 0.8 + height * 0.1).strength(0.45))
-            .alpha(0.3)
-            .restart();
-        }
+      if (!simRef.current) {
         // Height-only change (mobile keyboard show/hide): dims.current is updated
         // above for pan math, but the sim is left alone — nodes don't move.
-      } else {
-        setGraphDims({ w: width, h: height });
+        setGraphDims({ w: width, h: height }); 
   }
     });
     ro.observe(graphWrapperRef.current);
     return () => ro.disconnect();
-  }, [graphWrapperRef]);
+  }, []);
 
   // ── selectNode ───────────────────────────────────────────────────────────
   // Defined before the simulation effect so it can be closed over by the
@@ -91,7 +82,7 @@ export function useD3Simulation({
       setSelected(concept);
       setHighlightId(id);
 
-      // Pan so the selected node lands at the centre of the visible area,
+      // Pan so the selected node lands at the center of the visible area,
       // accounting for the detail panel that will slide in.
       const nodeData = nodesDataRef.current.find((n) => n.id === id);
       const svg = d3.select(svgRef.current);
@@ -217,11 +208,11 @@ export function useD3Simulation({
 
     const sim = d3
       .forceSimulation(nodes)
-      .force("link",      d3.forceLink(links).id((d) => d.id).distance(110).strength(0.8))
-      .force("charge",    d3.forceManyBody().strength(-420))
+      .force("link",      d3.forceLink(links).id((d) => d.id).distance(160).strength(0.6))
+      .force("charge",    d3.forceManyBody().strength(-900))
       .force("center",    d3.forceCenter(W / 2, H / 2))
       .force("y",         d3.forceY((d) => (d.tier / 6) * H * 0.8 + H * 0.1).strength(0.45))
-      .force("collision", d3.forceCollide(NODE_R + 8));
+      .force("collision", d3.forceCollide(NODE_R + 16));
 
     simRef.current = sim;
 
@@ -314,7 +305,7 @@ export function useD3Simulation({
   // ── Highlight update ─────────────────────────────────────────────────────
   // Runs on every highlightId change without rebuilding the simulation.
   // Updates colours, opacities, stroke widths, and arrowhead markers in-place.
-  // Because resizes no longer wipe nodesRef/edgesRef, this effect never risks
+  // Because resizes don't wipe nodesRef/edgesRef, this effect never risks
   // running against stale (null) selections after a keyboard dismiss or resize.
   useEffect(() => {
     if (!nodesRef.current || !edgesRef.current) return;
